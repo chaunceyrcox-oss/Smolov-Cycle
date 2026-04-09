@@ -643,6 +643,40 @@
                             { name: 'Cable Flyes', sets: '3x12', weight: 'Light', accessory: true }
                         ]
                     }
+                ],
+                // Week 4 - TAPER
+                [
+                    {
+                        day: 'Monday',
+                        exercises: [
+                            { name: 'Squat', sets: '3x5', weight: Math.round(squatMax * 0.70 / 5) * 5, main: true },
+                            { name: 'Bench Press', sets: '3x5', weight: Math.round(benchMax * 0.70 / 5) * 5, main: true },
+                            { name: 'Light Movement', sets: '20 min', weight: 'Walk/Bike', accessory: true }
+                        ]
+                    },
+                    {
+                        day: 'Wednesday',
+                        exercises: [
+                            { name: 'Squat', sets: '2x3', weight: Math.round(squatMax * 0.75 / 5) * 5, main: true },
+                            { name: 'Bench Press', sets: '2x3', weight: Math.round(benchMax * 0.75 / 5) * 5, main: true },
+                            { name: 'Mobility Work', sets: '15 min', weight: 'Stretch/Foam Roll', accessory: true }
+                        ]
+                    },
+                    {
+                        day: 'Friday',
+                        exercises: [
+                            { name: 'Squat', sets: '1x1', weight: Math.round(squatMax * 0.85 / 5) * 5, main: true },
+                            { name: 'Bench Press', sets: '1x1', weight: Math.round(benchMax * 0.85 / 5) * 5, main: true },
+                            { name: 'Rest & Recover', sets: '', weight: 'Eat, Sleep, Hydrate', accessory: true }
+                        ]
+                    },
+                    {
+                        day: 'Sunday',
+                        exercises: [
+                            { name: 'Complete Rest', sets: '', weight: 'No Training', accessory: true },
+                            { name: 'Prep for Max Day', sets: '', weight: 'Visualize, Sleep Early', accessory: true }
+                        ]
+                    }
                 ]
             ];
         }
@@ -762,6 +796,40 @@
                             { name: 'Leg Press', sets: '3x10', weight: 'Light', accessory: true }
                         ]
                     }
+                ],
+                // Week 4 - TAPER
+                [
+                    {
+                        day: 'Monday',
+                        exercises: [
+                            { name: 'Squat', sets: '3x5', weight: Math.round(squatMax * 0.70 / 5) * 5, main: true },
+                            { name: 'Bench Press', sets: '3x5', weight: Math.round(benchMax * 0.70 / 5) * 5, main: true },
+                            { name: 'Light Movement', sets: '20 min', weight: 'Walk/Bike', accessory: true }
+                        ]
+                    },
+                    {
+                        day: 'Wednesday',
+                        exercises: [
+                            { name: 'Squat', sets: '2x3', weight: Math.round(squatMax * 0.75 / 5) * 5, main: true },
+                            { name: 'Bench Press', sets: '2x3', weight: Math.round(benchMax * 0.75 / 5) * 5, main: true },
+                            { name: 'Mobility Work', sets: '15 min', weight: 'Stretch/Foam Roll', accessory: true }
+                        ]
+                    },
+                    {
+                        day: 'Friday',
+                        exercises: [
+                            { name: 'Squat', sets: '1x1', weight: Math.round(squatMax * 0.85 / 5) * 5, main: true },
+                            { name: 'Bench Press', sets: '1x1', weight: Math.round(benchMax * 0.85 / 5) * 5, main: true },
+                            { name: 'Rest & Recover', sets: '', weight: 'Eat, Sleep, Hydrate', accessory: true }
+                        ]
+                    },
+                    {
+                        day: 'Sunday',
+                        exercises: [
+                            { name: 'Complete Rest', sets: '', weight: 'No Training', accessory: true },
+                            { name: 'Prep for Max Day', sets: '', weight: 'Visualize, Sleep Early', accessory: true }
+                        ]
+                    }
                 ]
             ];
         }
@@ -815,7 +883,7 @@
         }
 
         function updateStats() {
-            const totalWorkouts = 12; // 4 days × 3 weeks
+            const totalWorkouts = 16; // 4 days × 4 weeks
             const completed = Object.values(completionData).filter(v => v).length;
             const percent = Math.round((completed / totalWorkouts) * 100);
             
@@ -828,7 +896,7 @@
             document.getElementById('projectedSquat').textContent = (squatMax + projectedIncrease) + ' lbs';
             
             // Update week progress
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < 4; i++) {
                 let weekCompleted = 0;
                 for (let j = 0; j < 4; j++) {
                     if (completionData[`w${i}d${j}`]) weekCompleted++;
