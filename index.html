@@ -408,6 +408,172 @@
                 letter-spacing: 4px;
             }
         }
+
+        /* Edit Accessories Modal */
+        .edit-accessory-btn {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            background: var(--chrome);
+            color: var(--chalk);
+            border: 1px solid var(--plate);
+            padding: 5px 12px;
+            font-size: 0.75rem;
+            font-family: 'Barlow Condensed', sans-serif;
+            letter-spacing: 1px;
+            cursor: pointer;
+            border-radius: 2px;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+        }
+
+        .edit-accessory-btn:hover {
+            background: var(--bar);
+            color: var(--iron);
+            border-color: var(--bar);
+            transform: none;
+            box-shadow: none;
+        }
+
+        .day-card {
+            position: relative;
+            padding-bottom: 44px;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--steel);
+            border: 2px solid var(--bar);
+            border-radius: 4px;
+            padding: 30px;
+            width: 90%;
+            max-width: 520px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+        }
+
+        .modal h3 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.8rem;
+            letter-spacing: 3px;
+            color: var(--bar);
+            margin-bottom: 20px;
+        }
+
+        .accessory-row {
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .accessory-row input[type="text"] {
+            background: var(--iron);
+            border: 2px solid var(--plate);
+            color: var(--chalk);
+            padding: 8px 10px;
+            font-size: 1rem;
+            font-family: 'Barlow Condensed', sans-serif;
+            border-radius: 2px;
+            transition: border-color 0.2s;
+        }
+
+        .accessory-row input[type="text"]:focus {
+            outline: none;
+            border-color: var(--bar);
+        }
+
+        .accessory-row input[type="text"].sets-input {
+            width: 80px;
+        }
+
+        .remove-row-btn {
+            background: var(--blood);
+            color: var(--chalk);
+            border: none;
+            padding: 8px 12px;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 2px;
+            line-height: 1;
+            transition: opacity 0.2s;
+        }
+
+        .remove-row-btn:hover {
+            opacity: 0.8;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .add-accessory-btn {
+            background: var(--chrome);
+            color: var(--chalk);
+            border: 1px dashed var(--plate);
+            padding: 8px 20px;
+            font-size: 0.9rem;
+            font-family: 'Barlow Condensed', sans-serif;
+            letter-spacing: 1px;
+            cursor: pointer;
+            border-radius: 2px;
+            width: 100%;
+            margin-top: 4px;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+
+        .add-accessory-btn:hover {
+            border-color: var(--bar);
+            color: var(--bar);
+            transform: none;
+            box-shadow: none;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            justify-content: flex-end;
+        }
+
+        .modal-actions button {
+            padding: 10px 28px;
+            font-size: 1rem;
+        }
+
+        .modal-cancel-btn {
+            background: var(--chrome) !important;
+            color: var(--chalk) !important;
+        }
+
+        .col-label {
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            color: var(--bar);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .accessory-col-headers {
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
     </style>
 </head>
 <body>
@@ -468,13 +634,93 @@
         </div>
     </div>
 
+    <!-- Edit Accessories Modal -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal">
+            <h3>EDIT ACCESSORIES</h3>
+            <div id="modalDayLabel" style="font-size:1rem;letter-spacing:2px;opacity:0.7;margin-bottom:18px;text-transform:uppercase;"></div>
+            <div class="accessory-col-headers">
+                <span class="col-label">Exercise</span>
+                <span class="col-label">Sets</span>
+                <span class="col-label">Weight</span>
+                <span></span>
+            </div>
+            <div id="accessoryRows"></div>
+            <button class="add-accessory-btn" id="addRowBtn">+ Add Exercise</button>
+            <div class="modal-actions">
+                <button class="modal-cancel-btn" id="modalCancelBtn">Cancel</button>
+                <button id="modalSaveBtn">Save</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let currentPhase = 'base';
         let squatMax = 400;
         let benchMax = 300;
         let completionData = {};
+        // accessoryOverrides: { "phaseKey_w0d0": [{name, sets, weight}, ...] }
+        let accessoryOverrides = {};
 
-        // Phase selectors
+        // ── Modal state ──────────────────────────────────────────
+        let modalDayId = null;
+        let modalDefaultAccessories = [];
+
+        const editModal = document.getElementById('editModal');
+        const accessoryRowsEl = document.getElementById('accessoryRows');
+        const modalDayLabel = document.getElementById('modalDayLabel');
+
+        document.getElementById('addRowBtn').addEventListener('click', () => {
+            appendAccessoryRow({ name: '', sets: '3x10', weight: 'Light' });
+        });
+
+        document.getElementById('modalCancelBtn').addEventListener('click', closeModal);
+        editModal.addEventListener('click', (e) => { if (e.target === editModal) closeModal(); });
+
+        document.getElementById('modalSaveBtn').addEventListener('click', () => {
+            const rows = accessoryRowsEl.querySelectorAll('.accessory-row');
+            const accessories = [];
+            rows.forEach(row => {
+                const inputs = row.querySelectorAll('input[type="text"]');
+                const name = inputs[0].value.trim();
+                const sets = inputs[1].value.trim();
+                const weight = inputs[2].value.trim();
+                if (name) accessories.push({ name, sets: sets || '3x10', weight: weight || 'Light', accessory: true });
+            });
+            accessoryOverrides[modalDayId] = accessories;
+            saveToStorage();
+            closeModal();
+            generateProgram(); // re-render with new accessories
+        });
+
+        function openModal(dayId, dayLabel, defaultAccessories) {
+            modalDayId = dayId;
+            modalDefaultAccessories = defaultAccessories;
+            modalDayLabel.textContent = dayLabel;
+            accessoryRowsEl.innerHTML = '';
+            const current = accessoryOverrides[dayId] || defaultAccessories;
+            current.forEach(ex => appendAccessoryRow(ex));
+            editModal.classList.add('open');
+        }
+
+        function closeModal() {
+            editModal.classList.remove('open');
+            modalDayId = null;
+        }
+
+        function appendAccessoryRow(ex) {
+            const row = document.createElement('div');
+            row.className = 'accessory-row';
+            row.innerHTML = `
+                <input type="text" placeholder="Exercise name" value="${ex.name || ''}">
+                <input type="text" class="sets-input" placeholder="3x10" value="${ex.sets || ''}">
+                <input type="text" class="sets-input" placeholder="Weight" value="${ex.weight || ''}">
+                <button class="remove-row-btn" title="Remove">✕</button>
+            `;
+            row.querySelector('.remove-row-btn').addEventListener('click', () => row.remove());
+            accessoryRowsEl.appendChild(row);
+        }
+        // ────────────────────────────────────────────────────────
         document.querySelectorAll('.phase-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.phase-btn').forEach(b => b.classList.remove('active'));
@@ -838,6 +1084,7 @@
             const card = document.createElement('div');
             card.className = 'day-card';
             const dayId = `w${weekIndex}d${dayIndex}`;
+            const overrideKey = `${currentPhase}_${dayId}`;
             
             if (completionData[dayId]) {
                 card.classList.add('completed');
@@ -853,18 +1100,34 @@
             
             const exerciseList = document.createElement('div');
             exerciseList.className = 'exercise-list';
+
+            // Separate main and default accessory exercises
+            const mainExercises = day.exercises.filter(ex => ex.main);
+            const defaultAccessories = day.exercises.filter(ex => ex.accessory);
+            // Use override if set, otherwise default
+            const accessories = accessoryOverrides[overrideKey] || defaultAccessories;
+            const allExercises = [...mainExercises, ...accessories];
             
-            day.exercises.forEach(ex => {
+            allExercises.forEach(ex => {
                 const exercise = document.createElement('div');
                 exercise.className = `exercise ${ex.main ? 'main' : 'accessory'}`;
                 exercise.innerHTML = `
                     <div class="exercise-name">${ex.name}</div>
-                    <div class="exercise-details">${ex.sets} @ ${typeof ex.weight === 'number' ? ex.weight + ' lbs' : ex.weight}</div>
+                    <div class="exercise-details">${ex.sets}${ex.sets ? ' @ ' : ''}${typeof ex.weight === 'number' ? ex.weight + ' lbs' : ex.weight}</div>
                 `;
                 exerciseList.appendChild(exercise);
             });
             
             card.appendChild(exerciseList);
+
+            // Edit accessories button
+            const editBtn = document.createElement('button');
+            editBtn.className = 'edit-accessory-btn';
+            editBtn.textContent = '✏ Accessories';
+            editBtn.addEventListener('click', () => {
+                openModal(overrideKey, `Week ${weekIndex + 1} — ${day.day}`, defaultAccessories);
+            });
+            card.appendChild(editBtn);
             
             // Add checkbox listener
             header.querySelector('.complete-checkbox').addEventListener('change', (e) => {
@@ -913,12 +1176,17 @@
             localStorage.setItem('smolovSquatMax', squatMax);
             localStorage.setItem('smolovBenchMax', benchMax);
             localStorage.setItem('smolovPhase', currentPhase);
+            localStorage.setItem('smolovAccessoryOverrides', JSON.stringify(accessoryOverrides));
         }
 
         function loadFromStorage() {
             const saved = localStorage.getItem('smolovCompletion');
             if (saved) {
                 completionData = JSON.parse(saved);
+            }
+            const savedOverrides = localStorage.getItem('smolovAccessoryOverrides');
+            if (savedOverrides) {
+                accessoryOverrides = JSON.parse(savedOverrides);
             }
             const savedSquat = localStorage.getItem('smolovSquatMax');
             const savedBench = localStorage.getItem('smolovBenchMax');
